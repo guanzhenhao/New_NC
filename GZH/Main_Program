@@ -1,0 +1,30 @@
+;磨削主程序
+PROC B_SCREW DISPLON
+;;**********程序功能**********
+;;螺纹主程序:
+;;修整 对刀 磨削 程序的调用
+;;***************************
+
+C_PAR_INI;参数初始化子程序
+
+IF DRESSER[6]<>0;有报警标记则退出程序
+    GOTOF G_ENDING
+ENDIF
+
+M20;吸雾开
+M26;空调开
+IF DRESS[10]==1
+DRESSER
+ENDIF
+C_ROTATE_ANGLE;螺旋升角
+;对刀判断
+
+GRINDING;磨削循环
+C_WORKS_CUMU;工件计数
+
+G_ENDING:
+C_GRINDING_END;运行结束
+C_ALARM;机床报警
+
+RET
+

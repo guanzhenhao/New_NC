@@ -1,0 +1,44 @@
+;;修整工艺
+;AX[AXNAME(SHUI_PING)];水平轴
+;AX[AXNAME(CHUI_ZHI)];垂直轴
+;M_INI[3];砂轮远离滚轮时轴向正向移动1，反之-1
+STOPRE
+IF DRESS[8]==0
+;;粗修
+    PROCE_DRESS[0]=PROCE_1_DRESS[0];进到量
+    PROCE_DRESS[1]=PROCE_1_DRESS[1];次数
+    PROCE_DRESS[2]=PROCE_1_DRESS[2];速度
+    WHILE (DRESS[5]>DRESS[2]);如果当前砂轮直径大于砂轮最大可用直径
+        IF (DRESS[5]-DRESS[2])>=2*PROCE_DRESS[0]
+            DRESS[1]=DRESS[1]-PROCE_DRESS[0]
+        ELSE
+            DRESS[1]=DRESS[1]-(DRESS[5]-DRESS[2])/2
+        ENDIF
+        DRESSER_B
+    ENDWHILE
+    STOPRE
+    WHILE(PROCE_DRESS[1]>0)
+        DRESS[1]=DRESS[1]-PROCE_DRESS[0]
+        DRESSER_B
+    ENDWHILE
+;;精修
+    PROCE_DRESS[0]=PROCE_2_DRESS[0];进到量
+    PROCE_DRESS[1]=PROCE_2_DRESS[1];次数
+    PROCE_DRESS[2]=PROCE_2_DRESS[2];速度
+    STOPRE
+    WHILE(PROCE_DRESS[1]>0)
+        DRESS[1]=DRESS[1]-PROCE_DRESS[0]
+        DRESSER_B
+    ENDWHILE
+ELSE;磨削中修整
+    IF DRESS[9]==0;磨削用标准修整
+        PROCE_DRESS[0]=PROCE_2_DRESS[0];进到量
+        PROCE_DRESS[1]=PROCE_2_DRESS[1];次数
+        PROCE_DRESS[2]=PROCE_2_DRESS[2];速度
+    ENDIF
+    STOPRE
+    WHILE(PROCE_DRESS[1]>0)
+        DRESS[1]=DRESS[1]-PROCE_DRESS[0]
+        DRESSER_B
+    ENDWHILE
+ENDIF
