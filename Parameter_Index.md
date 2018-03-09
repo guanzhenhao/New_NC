@@ -98,7 +98,7 @@
 |DRESSER[36]|DRESS_WHEEL_RPM|修整时砂轮转速
 |DRESSER[37]|N_CX_X_TYPE|砂轮远离金刚滚轮,轴的移动方向为正=1反之-1
 |DRESSER[38]|TECH_DRESS_CUMU|界面工艺修整量总量
-|DRESSER[39]|
+|DRESSER[39]|砂轮远离金刚滚轮,轴的移动方向为正=1反之-1
 |DRESSER[40]|
 |DRESSER[41]|
 |DRESSER[42]|
