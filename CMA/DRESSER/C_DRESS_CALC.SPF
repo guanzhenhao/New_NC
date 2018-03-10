@@ -46,6 +46,7 @@ END_RET:
     WHEEL[10]=WHEEL[10]-DRESSER[39]*DR0;当前左接触
     WHEEL[11]=WHEEL[11]-DRESSER[39]*DR0;当前右接触
     EXECSTRING(SHAPE);调用由SHAPE指定的修型程序
+    PROCESS[4]=PROCESS[4]-DR0;当前磨削接触位置
     DRESSER[5]=1;旧砂轮
     DRESSER[24]=ABS((WHILE[10]-DRESSER[2])/2);计算进刀后砂轮当前直径
     PROCESS[4]=PROCESS[4]-DR0;修整后当前磨削接触位置计算
@@ -53,6 +54,7 @@ END_RET:
     IF $A_DBB[2]==1;修整中途安全结束程序
         RET
     ENDIF 
+;每修整20次,切换一次砂轮转速
     IF DRESSER[20]>20
         C_LINESPEED_DRESS;砂轮速度
         G4 F1.5;重新计算转速后的延时
