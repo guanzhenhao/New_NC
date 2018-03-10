@@ -77,7 +77,7 @@
 |DRESSER[17]|DRESS_FEED_F|精修速度
 |DRESSER[18]|DRESS_TIME_RCURNT|当前粗修次数
 |DRESSER[19]|DRESS_TIME_FCURNT|当前精修次数
-|DRESSER[20]|DRESS_TIME_ACURNT|当前新砂轮抬刀需要修整次数
+|DRESSER[20]|DRESS_TIME_ACURNT|修整次数计数(用于砂轮转速切换)
 |DRESSER[21]|WHEEL_MID|修整轮与砂轮中心位置水平坐标
 |DRESSER[22]|WHEEL_WIDTH|砂轮宽
 |DRESSER[23]|WHEEL_DIA|砂轮初始直径
@@ -96,7 +96,7 @@
 |DRESSER[34]|DWHEEL_MID_R|右修整轮对砂轮中心
 |DRESSER[35]|WHEEL_MIN_diameter|砂轮最小直径
 |DRESSER[36]|DRESS_WHEEL_RPM|修整时砂轮转速
-|DRESSER[37]|N_CX_X_TYPE|砂轮远离金刚滚轮,轴的移动方向为正=1反之-1
+|DRESSER[37]|N_CX_X_TYPE|修整器在前=0,后=1(VW与前相同)
 |DRESSER[38]|TECH_DRESS_CUMU|界面工艺修整量总量
 |DRESSER[39]|砂轮远离金刚滚轮,轴的移动方向为正=1反之-1
 |DRESSER[40]|
@@ -374,7 +374,7 @@
 |**滚轮参数(WHEEL)**||
 |WHEEL[0]|DWHEEL_DIA|修整轮直径
 |WHEEL[1]|DWHEEL_LINESPEED|修整轮线速度
-|WHEEL[2]|DWHEEL_D_INTER|双滚轮间距
+|WHEEL[2]|DWHEEL_D_INTER|滚轮圆心间距
 |WHEEL[3]|DWHEEL_W_WIDTH|方滚轮厚度
 |WHEEL[4]|DWHEEL_S_RND_L|单滚轮左圆弧半径
 |WHEEL[5]|DWHEEL_S_RND_R|单滚轮右圆弧半径

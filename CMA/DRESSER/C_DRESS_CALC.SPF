@@ -3,43 +3,62 @@ PROC C_DRESS_CALC SBLOF DISPLOF
 ;;修整次数循环累加:
 ;;修整次数累加，粗精修切换，赋值
 ;;***************************
-
-IF DRESSER[20]<DRESSER[13];抬刀部分当前次数判断
-    DRESSER[20]=DRESSER[20]+1;次数累积
-    IF DRESSER[11]<>0;抬刀部分按粗修还是精修
-        IF DRESSER[133]==0;新砂轮修整模式(0抬齿高/1偏半个砂轮宽度)
-            D_DRESS_TOUCH_CURNT(DRESSER[14]);当前接触位置
+DEF REAL DR0
+DRESSER[18]=0
+DRESSER[19]=0
+DRESSER[20]=0
+M28;修整冷却开
+WHILE(DRESSER[18]+DRESSER[19]<DRESSER[11]+DRESSER[12])
+    STOPRE
+    IF (DRESSER[24]>=DRESSER[49]);如果当前砂轮直径大于最大砂轮磨削直径
+        IF (DRESSER[24]-DRESSER[49]-0.3)>=2*DRESSER[14]
+            DR0=DRESSER[14];当前接触位置
         ELSE
-            D_DRESS_HORI_CURNT(DRESSER[14]);新砂轮修整模式1下当前左右修整位置
+            IF (DRESSER[24]-DRESSER[49])>=2*DRESSER[15]
+                DR0=DRESSER[15]
+            ELSE
+                DR0=DRESS[24]-DRESS[49])/2
+            ENDIF
         ENDIF
         DRESSER[10]=DRESSER[16];修整速度赋值
-        MSG("轮廓初始修型中-->正在进行第"<<DRESSER[20]<<"次,还剩"<<DRESSER[13]-DRESSER[20]<<"次完成,进给量:"<<DRESSER[14]<<"mm")
-    ELSE
-        IF DRESSER[133]==0;新砂轮修整模式(0抬齿高/1偏半个砂轮宽度)
-            D_DRESS_TOUCH_CURNT(DRESSER[15]);当前接触位置
-        ELSE
-            D_DRESS_HORI_CURNT(DRESSER[15]);新砂轮修整模式1下当前左右修整位置
-        ENDIF
-        DRESSER[10]=DRESSER[17]
-        MSG("轮廓初始修型中-->正在进行第"<<DRESSER[20]<<"次,还剩"<<DRESSER[13]-DRESSER[20]<<"次完成,进给量:"<<DRESSER[15]<<"mm")
+        MSG("轮廓初始修型中-->当前砂轮直径"<<DRESSER[24]<<"mm,还剩"<<ABS(DRESSER[24]-DRESSER[49)<<"mm,进给量:"<<DR0<<"mm")
+        GOTOF END_RET
     ENDIF
-ELSE
-    IF DRESSER[18]<DRESSER[11]
-        DRESSER[18]=DRESSER[18]+1
-        D_DRESS_TOUCH_CURNT(DRESSER[14]);当前接触位置
+
+    IF DRESSER[18]<DRESSER[11];当前粗磨次数<粗磨次数
+        DR0=DRESSER[14]
         DRESSER[10]=DRESSER[16]
+        DRESSER[18]=DRESSER[18]+1
         MSG("粗修整中-->正在进行第"<<DRESSER[18]<<"次,还剩"<<DRESSER[11]-DRESSER[18]<<"次完成,进给量:"<<DRESSER[14]<<"mm")
     ELSE
-        IF DRESSER[19]<DRESSER[12]
-            DRESSER[19]=DRESSER[19]+1
-            D_DRESS_TOUCH_CURNT(DRESSER[15]);当前接触位置
+        IF DRESSER[19]<DRESSER[12]当前精磨次数<精磨次数
+            DR0=DRESSER[15]
             DRESSER[10]=DRESSER[17]
+            DRESSER[19]=DRESSER[19]+1
             MSG("精修整中-->正在进行第"<<DRESSER[19]<<"次,还剩"<<DRESSER[12]-DRESSER[19]<<"次完成,进给量:"<<DRESSER[15]<<"mm")
         ELSE
             DRESSER[19]=DRESSER[19]+1
         ENDIF
     ENDIF
-ENDIF
 
+END_RET:
+;修整进刀位置计算
+    WHEEL[10]=WHEEL[10]-DRESSER[39]*DR0;当前左接触
+    WHEEL[11]=WHEEL[11]-DRESSER[39]*DR0;当前右接触
+    EXECSTRING(SHAPE);调用由SHAPE指定的修型程序
+    DRESSER[5]=1;旧砂轮
+    DRESSER[24]=ABS((WHILE[10]-DRESSER[2])/2);计算进刀后砂轮当前直径
+    PROCESS[4]=PROCESS[4]-DR0;修整后当前磨削接触位置计算
+    DRESSER[20]=DRESSER[20]+1
+    IF $A_DBB[2]==1;修整中途安全结束程序
+        RET
+    ENDIF 
+    IF DRESSER[20]>20
+        C_LINESPEED_DRESS;砂轮速度
+        G4 F1.5;重新计算转速后的延时
+        DRESSER[20]=0
+    ENDIF  
+ENDWHILE
+M29;修整冷却关
 RET
 
