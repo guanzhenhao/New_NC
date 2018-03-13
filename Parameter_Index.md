@@ -97,7 +97,7 @@
 |DRESSER[35]|WHEEL_MIN_diameter|砂轮最小直径
 |DRESSER[36]|DRESS_WHEEL_RPM|修整时砂轮转速
 |DRESSER[37]|N_CX_X_TYPE|修整器在前=0,后=1(VW与前相同)
-|DRESSER[38]|TECH_DRESS_CUMU|界面工艺修整量总量
+|DRESSER[38]|TECH_DRESS_CUMU|磨削中的修整量总量
 |DRESSER[39]|砂轮远离金刚滚轮,轴的移动方向为正=1反之-1
 |DRESSER[40]|
 |DRESSER[41]|
@@ -310,6 +310,7 @@
 |INI[113]||砂轮动态启动延时
 |INI[114]||修整轮静止启动延时
 |INI[115]||修整轮动态启动延时
+|INI[116]||X轴向前移动为正时=1，反之-1
 |||
 |**对刀(TOOL_SET)**||
 |TOOL_SET[0]|RANDOM_POS|初始对刀点Z轴坐标
@@ -480,7 +481,7 @@
 |PROCESS[14]|GRID_TOTAL_ACCUMULATION|工艺磨削总量累计
 |PROCESS[15]|TECH_DRESS_EXTEND|精简工艺参数/扩展工艺参数
 |PROCESS[16]||磨削安全位置
-|PROCESS[17]||
+|PROCESS[17]||当前工序磨削第几次
 |磨削中心相关||
 |PROCESS[18]||外圆磨当前所在工艺
 |PROCESS[19]||外圆磨当前循环是否修整累计

@@ -1,76 +1,73 @@
-PROC C_CYCLE DISPLON
+PROC C_CYCLE(VAR INT DR0,BOOL DR1,INT DR2,REAL DR3,REAL DR4,INT DR5,INT DR6,REAL DR7,REAL DR8,REAL DR9,REAL DR10) DISPLON
 ;;**********程序功能**********
 ;;螺纹磨削循环:
 ;;螺纹磨削初始走位及子程序的调用，磨削中修整的调用
+;DR0:当前次数;DR1:单双磨;DR2:次数;DR3:进给量;DR4:速度;DR5:修整设定
+;DR6:修整次数;DR7:修整进给量;DR8:修整速度;DR9:磨削线速度;DR10:修整线速度
 ;;***************************
-
-IF TECH_TIME[0]+TECH_TIME[1]+TECH_TIME[2]+TECH_TIME[3]+TECH_TIME[4]==0
-    RET
+PROCESS[2]=PROCESS[2]+1
+IF DR3<=0;如果当前工序磨削次数小于等于0跳出
+	RET
 ENDIF
-
-IF INI[75]==1;磨削几件后修整标记位
-    INI[75]=0;标记位
-    ;++++not-sn-delete-begain++++
-    F_Z_POSITION(INI[28]);修整初始位置
-    ;++++not-sn-delete-end++++
-    M9;内磨削冷却关
-    M39;外磨削冷却关
-    B_DRESS;修整
-    D_GRIND_POSITION;修整后磨削位置计算
-    IF DRESSER[6]<>0;有报警标记则退出程序
+PROCESS[4]=PROCESS[4]-DR3;进刀位置
+PROCESS[6]=DR1;单双磨
+PROCESS[8]=DR3;磨削进刀量
+PROCESS[9]=DR4;磨削速度
+TECH_DRESS_TIME[5]=DR6;修整次数
+TECH_DRESS_DEEP[0]=DR7;修整进刀量
+TECH_DRESS_FEED[0]=DR8;修整速度
+PROCESS[10]=DR9;磨削砂轮线速度
+WHEEL_LINESPEED_DRESS[2]=DR10;修整砂轮线速度
+WHILE(DR0<DR3);如果当前磨削次数小于设定磨削次数
+;第一次磨削或者修整后的磨削走位
+    IF (TECH_TIME[0]+TECH_TIME[1]+TECH_TIME[2]+TECH_TIME[3]==0) OR (INI[72]==1)
+        INI[72]=0;标记清零
+        ;++++sw-or-sn-begain++++
+        ;SW:D_GRIND_INIT_POSITION(INI[6],PROCESS[16],INI[56],INI[55])
+        ;SN:D_GRIND_INIT_POSITION(INI[28],INI[10],INI[56],INI[55])
+        D_GRIND_INIT_POSITION(INI[6],PROCESS[16],INI[56],INI[55])
+        ;++++sw-or-sn-end++++
+    ENDIF
+    M8;内磨削冷却开
+    M38;外磨削冷却开
+    D_GRIND;螺纹小循环
+    DR0=DR0+1;当前磨削次数累计
+    IF INI[47]==0;正常磨削结束累计磨削量
+        PROCESS[14]=PROCESS[14]+PROCESS[8];累计工艺磨削量累计
+    ENDIF
+    PLCASUP1;初始角度计算
+    IF $A_DBB[2]==1;按下退刀键跳转到结束程序
         RET
     ENDIF
-    C_LINESPEED_GRIND;磨削时砂轮速度调节子程序
-ENDIF
-
-IF (TECH_TIME[0]+TECH_TIME[1]+TECH_TIME[2]+TECH_TIME[3]+TECH_TIME[4]==1) OR (INI[72]==1);第一次磨削或者修整后的磨削
-    INI[72]=0;标记清零
-    ;++++sw-or-sn-begain++++
-    ;SW:D_GRIND_INIT_POSITION(INI[6],PROCESS[16],INI[56],INI[55])
-    ;SN:D_GRIND_INIT_POSITION(INI[28],INI[10],INI[56],INI[55])
-    D_GRIND_INIT_POSITION(INI[6],PROCESS[16],INI[56],INI[55])
-    ;++++sw-or-sn-end++++
-ENDIF
-
-M8;内磨削冷却开
-M38;外磨削冷却开
-
-D_GRIND;螺纹小循环
-PLCASUP1;初始角度计算
-
-IF INI[47]==0;磨削中不正常退出标记
-    PROCESS[14]=PROCESS[14]+PROCESS[8];累计工艺磨削量累计
-ENDIF
-
-IF $A_DBB[2]==1;按下退刀键跳转到结束程序
-    RET
-ENDIF
-
-IF PROCESS[3]==1
-    ;++++not-sn-delete-begain++++
-    F_Z_POSITION(INI[28]);修整初始位置
-    ;++++not-sn-delete-end++++
-    M9;内磨削冷却关
-    M39;外磨削冷却关
-    B_DRESS;修整
-    D_GRIND_POSITION;修整后磨削位置计算
-    PROCESS[3]=0;修整标记清零
-    IF DRESSER[6]<>0;有报警标记则退出程序
-        RET
+    IF PROCESS[7]<DR5;修整判断
+        PROCESS[7]=PROCESS[7]+1;当前磨削是否修整累计
+        IF PROCESS[7]==DR5;修整次数到位标记
+            PROCESS[3]=1;修整标记
+            PROCESS[7]=0;次数清零
+        ENDIF
+        IF DR0==DR2;如果是最后一刀
+            PROCESS[7]=0;累计清零
+        ENDIF
+    ELSE;磨削中修改了修整设定
+        IF DR5<>0
+            PROCESS[3]=1;修整标记
+            PROCESS[7]=0;次数清零
+        ENDIF
     ENDIF
-    INI[72]=1;磨削中进行过修整后的标记
-    C_LINESPEED_GRIND;磨削时砂轮速度调节子程序
-ENDIF
-
-IF (TECH_TIME[0]+TECH_TIME[1]+TECH_TIME[2]+TECH_TIME[3]+TECH_TIME[4]==TECHNOLOGY[10]+TECHNOLOGY[11]+TECHNOLOGY[12]+TECHNOLOGY[13]+DIY[1]);最后一次结束
-    M9;内磨削冷却关
-    M39;外磨削冷却关
-    ;++++sw-or-sn-begain++++
-    ;SW:D_GRIND_INIT_POSITION(INI[6],INI[23],INI[56],INI[55])
-    ;SN:D_GRIND_INIT_POSITION(INI[28],INI[23],INI[56],INI[55])
-    D_GRIND_INIT_POSITION(INI[6],INI[23],INI[56],INI[55])
-    ;++++sw-or-sn-end++++
-ENDIF
-
+    IF PROCESS[3]==1
+        ;++++not-sn-delete-begain++++
+        F_Z_POSITION(INI[28]);修整初始位置
+        ;++++not-sn-delete-end++++
+        M9;内磨削冷却关
+        M39;外磨削冷却关
+        B_DRESS;修整
+        PROCESS[3]=0;修整标记清零
+        IF DRESSER[6]<>0;有报警标记则退出程序
+            RET
+        ENDIF
+        INI[72]=1;磨削中进行过修整后的标记
+        C_LINESPEED_GRIND;磨削时砂轮速度调节子程序
+    ENDIF
+ENDWHILE
 RET
 
