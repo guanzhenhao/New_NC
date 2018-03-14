@@ -17,7 +17,7 @@ IF INI[75]==1;磨削几件后修整标记位
 ENDIF
 ;X轴初始接触赋值位置选择
 IF INI[26]<>0;0是单件磨削模式,1是批量磨削模式
-    PROCESS[4]=TOOL_SET[57]+DRESSER[24];依据砂轮当前直径计算
+    PROCESS[4]=TOOL_SET[59]+DRESSER[24]/2;依据砂轮当前直径计算
 ENDIF
 
 ;粗磨
